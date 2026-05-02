@@ -405,6 +405,13 @@
       margin-top: 6px;
     }
 
+    .footer {
+      color: #777;
+      font-size: 12px;
+      padding: 2px 20px 20px;
+      text-align: center;
+    }
+
     .note {
       font-size: 12px;
       color: #666;
@@ -440,7 +447,7 @@
 <body>
   <div class="app">
     <div class="header">
-      <h1>Tasa FLC</h1>
+      <h1>Tasa $</h1>
       <p>Calculadora BCV / Binance</p>
     </div>
 
@@ -468,12 +475,12 @@
       <div id="rateBox" class="rate-box">
         <div class="rate-row">
           <label for="bcv">Tasa BCV</label>
-          <input id="bcv" type="number" step="0.01" placeholder="Ej: 487.12" oninput="calcularTodo()" />
+          <input id="bcv" type="number" inputmode="decimal" step="0.01" placeholder="Ej: 487.12" oninput="calcularTodo()" />
         </div>
 
         <div class="rate-row">
           <label for="binance">Tasa Binance/P2P</label>
-          <input id="binance" type="number" step="0.01" placeholder="Ej: 630" oninput="actualizarTasaManual()" />
+          <input id="binance" type="number" inputmode="decimal" step="0.01" placeholder="Ej: 630" oninput="actualizarTasaManual()" />
         </div>
       </div>
 
@@ -492,7 +499,7 @@
 
         <div class="input-group">
           <label for="monto">Precio marcado del producto</label>
-          <input id="monto" type="number" step="0.01" placeholder="Ej: 19.50" oninput="calcularTodo()" />
+          <input id="monto" type="number" inputmode="decimal" step="0.01" placeholder="Ej: 19.50" oninput="calcularTodo()" />
         </div>
 
         <button class="button secondary" onclick="calcularTodo()">
@@ -545,7 +552,7 @@
 
         <div class="input-group">
           <label for="montoCambio">D&oacute;lares a cambiar</label>
-          <input id="montoCambio" type="number" step="0.01" placeholder="Ej: 60" oninput="calcularTodo()" />
+          <input id="montoCambio" type="number" inputmode="decimal" step="0.01" placeholder="Ej: 60" oninput="calcularTodo()" />
         </div>
 
         <button class="button secondary" onclick="calcularTodo()">
@@ -586,7 +593,7 @@
 
         <div class="input-group">
           <label for="montoPagar">Monto en d&oacute;lares a pagar</label>
-          <input id="montoPagar" type="number" step="0.01" placeholder="Ej: 100" oninput="calcularTodo()" />
+          <input id="montoPagar" type="number" inputmode="decimal" step="0.01" placeholder="Ej: 100" oninput="calcularTodo()" />
         </div>
 
         <button class="button secondary" onclick="calcularTodo()">
@@ -618,6 +625,10 @@
           </div>
         </div>
       </section>
+
+      <div class="footer">
+        &copy; JGomez
+      </div>
     </div>
   </div>
 

@@ -1,6 +1,6 @@
 {
   "name": "Calculadora BCV Binance - Ferretería La Concordia",
-  "short_name": "Tasa FLC",
+  "short_name": "Tasa $",
   "description": "Calculadora de precio en divisa usando BCV y Binance P2P.",
   "start_url": "./",
   "scope": "./",
