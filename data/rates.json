@@ -1,13 +1,13 @@
 {
-  "bcv": null,
+  "bcv": 487.12,
   "binance": {
-    "compra": null,
-    "venta": null,
-    "promedio": null
+    "compra": 632.14,
+    "venta": 633.36,
+    "promedio": 632.75
   },
   "warnings": {
-    "bcv": "Pendiente por actualizar con GitHub Actions",
-    "binance": "Pendiente por actualizar con GitHub Actions"
+    "bcv": null,
+    "binance": null
   },
-  "updatedAt": null
+  "updatedAt": "2026-05-02T16:43:38.938Z"
 }
