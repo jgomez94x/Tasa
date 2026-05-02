@@ -1,4 +1,4 @@
-const CACHE_NAME = "tasa-flc-v12";
+const CACHE_NAME = "tasa-flc-v13";
 
 const urlsToCache = [
   "./",
