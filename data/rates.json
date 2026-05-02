@@ -1,0 +1,13 @@
+{
+  "bcv": null,
+  "binance": {
+    "compra": null,
+    "venta": null,
+    "promedio": null
+  },
+  "warnings": {
+    "bcv": "Pendiente por actualizar con GitHub Actions",
+    "binance": "Pendiente por actualizar con GitHub Actions"
+  },
+  "updatedAt": null
+}
