@@ -1,9 +1,9 @@
 {
   "bcv": 489.55,
   "binance": {
-    "compra": 641.16,
-    "venta": 654.44,
-    "promedio": 647.8
+    "compra": 648.29,
+    "venta": 646.08,
+    "promedio": 647.18
   },
   "warnings": {
     "bcv": null,
@@ -13,55 +13,45 @@
     "binance": {
       "compra": {
         "tradeType": "BUY",
-        "selectedSource": "binance-old-BUY",
-        "selectedMethod": "average-lowest-5-consensus-median-BUY",
+        "selectedBank": "Provincial",
+        "selectedPayTypes": [
+          "Provincial"
+        ],
+        "selectedMethod": "avg-lowest-5-filtered",
+        "selectedSource": "binance-p2p-BUY",
         "sourceRates": [
           {
-            "source": "binance-old-BUY",
-            "method": "average-lowest-5",
-            "rate": 641.16,
-            "sampleSize": 20,
-            "samplePrices": [
-              631.58,
-              638,
-              644,
-              646,
-              646.2
-            ]
+            "source": "binance-p2p-BUY",
+            "bankLabel": "BBVA",
+            "payTypes": [
+              "BBVA"
+            ],
+            "method": "no-valid-prices",
+            "rate": null,
+            "sampleSize": 0,
+            "rawSampleSize": 0,
+            "samplePrices": [],
+            "ignoredOutliers": []
           },
           {
-            "source": "binance-quote-BUY",
-            "method": "average-lowest-5",
-            "rate": 631.58,
-            "sampleSize": 1,
+            "source": "binance-p2p-BUY",
+            "bankLabel": "Provincial",
+            "payTypes": [
+              "Provincial"
+            ],
+            "method": "avg-lowest-5-filtered",
+            "rate": 648.29,
+            "sampleSize": 19,
+            "rawSampleSize": 20,
             "samplePrices": [
+              647.98,
+              648,
+              648,
+              648.45,
+              649
+            ],
+            "ignoredOutliers": [
               631.58
-            ]
-          },
-          {
-            "source": "binance-ads-BUY-price_asc",
-            "method": "average-lowest-5",
-            "rate": 641.16,
-            "sampleSize": 20,
-            "samplePrices": [
-              631.58,
-              638,
-              644,
-              646,
-              646.2
-            ]
-          },
-          {
-            "source": "binance-ads-BUY-price_desc",
-            "method": "average-lowest-5",
-            "rate": 641.16,
-            "sampleSize": 20,
-            "samplePrices": [
-              631.58,
-              638,
-              644,
-              646,
-              646.2
             ]
           }
         ],
@@ -69,61 +59,49 @@
       },
       "venta": {
         "tradeType": "SELL",
-        "selectedSource": "binance-old-SELL",
-        "selectedMethod": "average-highest-5-consensus-median-SELL",
+        "selectedBank": "Provincial",
+        "selectedPayTypes": [
+          "Provincial"
+        ],
+        "selectedMethod": "avg-highest-5-filtered",
+        "selectedSource": "binance-p2p-SELL",
         "sourceRates": [
           {
-            "source": "binance-old-SELL",
-            "method": "average-highest-5",
-            "rate": 654.44,
-            "sampleSize": 20,
-            "samplePrices": [
-              680.8,
-              649,
-              648,
-              647.2,
-              647.2
-            ]
+            "source": "binance-p2p-SELL",
+            "bankLabel": "BBVA",
+            "payTypes": [
+              "BBVA"
+            ],
+            "method": "no-valid-prices",
+            "rate": null,
+            "sampleSize": 0,
+            "rawSampleSize": 0,
+            "samplePrices": [],
+            "ignoredOutliers": []
           },
           {
-            "source": "binance-quote-SELL",
-            "method": "average-highest-5",
-            "rate": 680.8,
-            "sampleSize": 1,
-            "samplePrices": [
-              680.8
-            ]
-          },
-          {
-            "source": "binance-ads-SELL-price_asc",
-            "method": "average-highest-5",
-            "rate": 654.44,
+            "source": "binance-p2p-SELL",
+            "bankLabel": "Provincial",
+            "payTypes": [
+              "Provincial"
+            ],
+            "method": "avg-highest-5-filtered",
+            "rate": 646.08,
             "sampleSize": 20,
+            "rawSampleSize": 20,
             "samplePrices": [
-              680.8,
-              649,
-              648,
-              647.2,
-              647.2
-            ]
-          },
-          {
-            "source": "binance-ads-SELL-price_desc",
-            "method": "average-highest-5",
-            "rate": 654.44,
-            "sampleSize": 20,
-            "samplePrices": [
-              680.8,
-              649,
-              648,
-              647.2,
-              647.2
-            ]
+              647,
+              646.3,
+              646,
+              646,
+              645.09
+            ],
+            "ignoredOutliers": []
           }
         ],
         "errors": []
       }
     }
   },
-  "updatedAt": "2026-05-04T15:33:15.109Z"
+  "updatedAt": "2026-05-04T15:36:43.268Z"
 }
