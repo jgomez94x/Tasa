@@ -2,9 +2,9 @@ const fs = require("fs/promises");
 const path = require("path");
 
 const BINANCE_PAY_TYPE_GROUPS = [
-  { label: "BBVA", payTypes: ["BBVA"] },
   { label: "Provincial", payTypes: ["Provincial"] },
   { label: "Banco Provincial", payTypes: ["Banco Provincial"] },
+  { label: "BBVA", payTypes: ["BBVA"] },
   { label: "Todos los bancos", payTypes: [] }
 ];
 
@@ -37,9 +37,7 @@ async function main() {
       bcv: bcvResult.status === "rejected" ? bcvResult.reason?.message : null,
       binance: binanceResult.status === "rejected" ? binanceResult.reason?.message : null
     },
-    diagnostics: {
-      binance: binanceDiagnostics
-    },
+    diagnostics: { binance: binanceDiagnostics },
     updatedAt: new Date().toISOString()
   };
 
@@ -55,21 +53,9 @@ function hasAnyBinanceRate(rates) {
 
 async function getBCVRate() {
   const sources = [
-    {
-      name: "bcv-api",
-      url: "https://bcv-api.rafnixg.dev/rates/",
-      parse: extractBCVNumber
-    },
-    {
-      name: "dolarapi",
-      url: "https://ve.dolarapi.com/v1/dolares/oficial",
-      parse: data => data?.promedio || data?.venta || data?.compra
-    },
-    {
-      name: "dolarflow",
-      url: "https://dolarflow.com/api/oficial",
-      parse: data => data?.precio
-    }
+    { name: "bcv-api", url: "https://bcv-api.rafnixg.dev/rates/", parse: extractBCVNumber },
+    { name: "dolarapi", url: "https://ve.dolarapi.com/v1/dolares/oficial", parse: data => data?.promedio || data?.venta || data?.compra },
+    { name: "dolarflow", url: "https://dolarflow.com/api/oficial", parse: data => data?.precio }
   ];
 
   const errors = [];
@@ -78,11 +64,7 @@ async function getBCVRate() {
     try {
       const data = await fetchJson(source.url, undefined, source.name);
       const rate = source.parse(data);
-
-      if (isValidRate(rate)) {
-        return Number(Number(rate).toFixed(2));
-      }
-
+      if (isValidRate(rate)) return Number(Number(rate).toFixed(2));
       errors.push(`${source.name}: respuesta sin tasa BCV`);
     } catch (error) {
       errors.push(`${source.name}: ${error.message}`);
@@ -94,50 +76,30 @@ async function getBCVRate() {
 
 function extractBCVNumber(data) {
   const possibleKeys = [
-    "usd",
-    "USD",
-    "dollar",
-    "dolar",
-    "DOLAR",
-    "Dólar",
-    "dólar",
-    "rate",
-    "value",
-    "promedio",
-    "price",
-    "precio",
-    "venta",
-    "compra"
+    "usd", "USD", "dollar", "dolar", "DOLAR", "Dólar", "dólar",
+    "rate", "value", "promedio", "price", "precio", "venta", "compra"
   ];
 
   function walk(obj) {
     if (obj === null || obj === undefined) return null;
-
-    if (typeof obj === "number") {
-      if (isValidRate(obj)) return obj;
-    }
-
+    if (typeof obj === "number" && isValidRate(obj)) return obj;
     if (typeof obj === "string") {
       const num = parseVenezuelanNumber(obj);
       if (isValidRate(num)) return num;
     }
-
     if (typeof obj === "object") {
       for (const key of Object.keys(obj)) {
         const lowerKey = key.toLowerCase();
-
         if (possibleKeys.some(k => lowerKey.includes(k.toLowerCase()))) {
           const found = walk(obj[key]);
           if (found) return found;
         }
       }
-
       for (const key of Object.keys(obj)) {
         const found = walk(obj[key]);
         if (found) return found;
       }
     }
-
     return null;
   }
 
@@ -145,9 +107,13 @@ function extractBCVNumber(data) {
 }
 
 async function getBinanceRates() {
+  // Binance P2P usa BUY/SELL desde la accion del usuario en Binance.
+  // En esta app se muestra como casa de cambio:
+  // compra = tasa menor, usando Binance SELL.
+  // venta = tasa mayor, usando Binance BUY.
   const [compraResult, ventaResult] = await Promise.allSettled([
-    getBinanceP2P("BUY"),
-    getBinanceP2P("SELL")
+    getBinanceP2P("SELL"),
+    getBinanceP2P("BUY")
   ]);
 
   const compraData = compraResult.status === "fulfilled" ? compraResult.value : null;
@@ -166,14 +132,10 @@ async function getBinanceRates() {
   const promedio = valores.reduce((a, b) => a + b, 0) / valores.length;
 
   return {
-    rates: {
-      compra,
-      venta,
-      promedio: Number(promedio.toFixed(2))
-    },
+    rates: { compra, venta, promedio: Number(promedio.toFixed(2)) },
     diagnostics: {
-      compra: compraData?.diagnostics || null,
-      venta: ventaData?.diagnostics || null
+      compra: { label: "Compra app", binanceTradeType: "SELL", ...(compraData?.diagnostics || {}) },
+      venta: { label: "Venta app", binanceTradeType: "BUY", ...(ventaData?.diagnostics || {}) }
     }
   };
 }
@@ -187,12 +149,9 @@ async function getBinanceP2P(tradeType) {
       const result = await getBinanceP2PAdsByPayType(tradeType, group);
       attempts.push(result);
 
-      // Si BBVA/Provincial devuelve al menos 5 anuncios, usamos esa referencia y no seguimos probando.
       if (isValidRate(result.rate) && result.sampleSize >= 5 && group.payTypes.length) {
         return buildFinalP2PResponse(result, tradeType, attempts, errors);
       }
-
-      // Fallback general si no encontramos banco especifico.
       if (isValidRate(result.rate) && result.sampleSize >= 5 && !group.payTypes.length) {
         return buildFinalP2PResponse(result, tradeType, attempts, errors);
       }
@@ -247,47 +206,22 @@ async function getBinanceP2PAdsByPayType(tradeType, group) {
     publisherType: null
   };
 
-  const data = await fetchJson(url, {
-    method: "POST",
-    body: JSON.stringify(body)
-  }, `binance-p2p-${tradeType}-${group.label}`);
+  const data = await fetchJson(url, { method: "POST", body: JSON.stringify(body) }, `binance-p2p-${tradeType}-${group.label}`);
+  const prices = (data.data || []).map(item => Number(item?.adv?.price)).filter(isValidRate);
 
-  const prices = (data.data || [])
-    .map(item => Number(item?.adv?.price))
-    .filter(isValidRate);
-
-  return buildP2PResult({
-    source: `binance-p2p-${tradeType}`,
-    tradeType,
-    prices,
-    bankLabel: group.label,
-    payTypes: group.payTypes
-  });
+  return buildP2PResult({ source: `binance-p2p-${tradeType}`, tradeType, prices, bankLabel: group.label, payTypes: group.payTypes });
 }
 
 function buildP2PResult({ source, tradeType, prices, bankLabel, payTypes }) {
   const validPrices = prices.filter(isValidRate).sort((a, b) => a - b);
 
   if (!validPrices.length) {
-    return {
-      source,
-      tradeType,
-      rate: null,
-      method: "no-valid-prices",
-      bankLabel,
-      payTypes,
-      sampleSize: 0,
-      rawSampleSize: 0,
-      samplePrices: [],
-      ignoredOutliers: []
-    };
+    return { source, tradeType, rate: null, method: "no-valid-prices", bankLabel, payTypes, sampleSize: 0, rawSampleSize: 0, samplePrices: [], ignoredOutliers: [] };
   }
 
   const cleanedPrices = removeExtremeOutliers(validPrices);
   const workingPrices = cleanedPrices.kept.length >= 5 ? cleanedPrices.kept : validPrices;
 
-  // BUY: promedio de los 5 primeros precios bajos.
-  // SELL: promedio de los 5 precios altos, pero despues de quitar extremos raros.
   const selectedPrices = tradeType === "SELL"
     ? workingPrices.slice(-5).reverse()
     : workingPrices.slice(0, 5);
@@ -309,22 +243,17 @@ function buildP2PResult({ source, tradeType, prices, bankLabel, payTypes }) {
 }
 
 function removeExtremeOutliers(sortedPrices) {
-  if (sortedPrices.length < 7) {
-    return { kept: sortedPrices, removed: [] };
-  }
+  if (sortedPrices.length < 7) return { kept: sortedPrices, removed: [] };
 
   const median = getMedian(sortedPrices);
-  const maxDistance = median * 0.015; // 1.5% alrededor de la mediana para evitar anuncios inflados o muy bajos.
+  const maxDistance = median * 0.015;
   let kept = sortedPrices.filter(price => Math.abs(price - median) <= maxDistance);
 
   if (kept.length < 5) {
     const widerDistance = median * 0.025;
     kept = sortedPrices.filter(price => Math.abs(price - median) <= widerDistance);
   }
-
-  if (kept.length < 5) {
-    kept = sortedPrices;
-  }
+  if (kept.length < 5) kept = sortedPrices;
 
   const keptSet = new Map();
   kept.forEach(price => keptSet.set(price, (keptSet.get(price) || 0) + 1));
@@ -332,11 +261,8 @@ function removeExtremeOutliers(sortedPrices) {
   const removed = [];
   for (const price of sortedPrices) {
     const count = keptSet.get(price) || 0;
-    if (count > 0) {
-      keptSet.set(price, count - 1);
-    } else {
-      removed.push(price);
-    }
+    if (count > 0) keptSet.set(price, count - 1);
+    else removed.push(price);
   }
 
   return { kept, removed };
@@ -360,10 +286,7 @@ async function fetchJson(url, options = {}, sourceName = "fuente") {
       }
     });
 
-    if (!res.ok) {
-      throw new Error(`${sourceName} HTTP ${res.status}`);
-    }
-
+    if (!res.ok) throw new Error(`${sourceName} HTTP ${res.status}`);
     return await res.json();
   } finally {
     clearTimeout(timeout);
@@ -377,25 +300,15 @@ function average(numbers) {
 function getMedian(numbers) {
   const sorted = [...numbers].sort((a, b) => a - b);
   const middle = Math.floor(sorted.length / 2);
-
   if (sorted.length % 2) return sorted[middle];
-
   return (sorted[middle - 1] + sorted[middle]) / 2;
 }
 
 function parseVenezuelanNumber(value) {
   if (typeof value !== "string") return Number(value);
-
   const cleaned = value.replace(/[^\d.,]/g, "");
-
-  if (cleaned.includes(",") && cleaned.includes(".")) {
-    return Number(cleaned.replace(/\./g, "").replace(",", "."));
-  }
-
-  if (cleaned.includes(",")) {
-    return Number(cleaned.replace(",", "."));
-  }
-
+  if (cleaned.includes(",") && cleaned.includes(".")) return Number(cleaned.replace(/\./g, "").replace(",", "."));
+  if (cleaned.includes(",")) return Number(cleaned.replace(",", "."));
   return Number(cleaned);
 }
 
