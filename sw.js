@@ -190,6 +190,7 @@ const adminPanelInject = String.raw`
       window.cambiarModo = wrapped;
     }
 
+    window.actualizarVisitas = actualizarVisitasAdmin;
     actualizarVisitasAdmin();
   }
 
