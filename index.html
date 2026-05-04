@@ -148,6 +148,10 @@
       margin-bottom: 0;
     }
 
+    .rate-input-wrap {
+      min-width: 0;
+    }
+
     label {
       font-size: 14px;
       font-weight: 800;
@@ -233,6 +237,26 @@
       line-height: 1.2;
       margin-top: 5px;
       color: #666;
+    }
+
+    .trend {
+      display: block;
+      font-size: 11px;
+      font-weight: 900;
+      line-height: 1.15;
+      margin-top: 4px;
+    }
+
+    .trend.up {
+      color: var(--verde);
+    }
+
+    .trend.down {
+      color: var(--rojo);
+    }
+
+    .trend.flat {
+      color: #777;
     }
 
     .rate-tabs button.active {
@@ -480,7 +504,10 @@
 
         <div class="rate-row">
           <label for="binance">Tasa Binance/P2P</label>
-          <input id="binance" type="number" inputmode="decimal" step="0.01" placeholder="Ej: 630" oninput="actualizarTasaManual()" />
+          <div class="rate-input-wrap">
+            <input id="binance" type="number" inputmode="decimal" step="0.01" placeholder="Ej: 630" oninput="actualizarTasaManual()" />
+            <span id="trendPromedio" class="trend flat">=</span>
+          </div>
         </div>
       </div>
 
@@ -526,14 +553,17 @@
           <button id="tabCambioJGomez" class="active" type="button" onclick="cambiarTasaCambio('jgomez')">
             Tasa<br>JGOMEZ
             <span id="tabRateJGomez" class="tab-rate">-</span>
+            <span id="tabTrendJGomez" class="trend flat">=</span>
           </button>
           <button id="tabCambioCompra" type="button" onclick="cambiarTasaCambio('compra')">
             Compra<br>P2P
             <span id="tabRateCompra" class="tab-rate">-</span>
+            <span id="tabTrendCompra" class="trend flat">=</span>
           </button>
           <button id="tabCambioVenta" type="button" onclick="cambiarTasaCambio('venta')">
             Venta<br>P2P
             <span id="tabRateVenta" class="tab-rate">-</span>
+            <span id="tabTrendVenta" class="trend flat">=</span>
           </button>
         </div>
 
@@ -639,6 +669,7 @@
     let tasaCambioActiva = "jgomez";
     let ultimoMontoCambioBs = null;
     let ultimoMontoPagarBs = null;
+    let tasasP2PAnteriores = null;
     let tasasP2P = {
       compra: null,
       venta: null,
@@ -670,11 +701,12 @@
       status.className = "status " + tipo;
     }
 
-    function aplicarTasas(data) {
+    function aplicarTasas(data, datosAnteriores = null) {
       if (data.bcv) {
         document.getElementById("bcv").value = Number(data.bcv).toFixed(2);
       }
 
+      tasasP2PAnteriores = datosAnteriores?.binance || null;
       tasasP2P.compra = data.binance?.compra || null;
       tasasP2P.venta = data.binance?.venta || null;
       tasasP2P.promedio = data.binance?.promedio || null;
@@ -690,10 +722,11 @@
       return Boolean(data.bcv && tasaElegida);
     }
 
-    function guardarTasas(data) {
+    function guardarTasas(data, datosAnteriores = null) {
       try {
         localStorage.setItem(TASAS_CACHE_KEY, JSON.stringify({
           data,
+          previousData: datosAnteriores,
           savedAt: Date.now()
         }));
       } catch (error) {
@@ -717,7 +750,7 @@
       const cache = leerTasasGuardadas();
       if (!cache?.data) return false;
 
-      aplicarTasas(cache.data);
+      aplicarTasas(cache.data, cache.previousData);
       return true;
     }
 
@@ -740,7 +773,7 @@
       const cache = leerTasasGuardadas();
 
       if (!forzar && cacheEstaFresco(cache)) {
-        aplicarTasas(cache.data);
+        aplicarTasas(cache.data, cache.previousData);
         setStatus(`Tasas guardadas ${horaCache(cache)}. Usa Actualizar tasas si quieres traerlas de nuevo.`, "ok");
         return;
       }
@@ -760,13 +793,14 @@
         }
 
         const data = await res.json();
-        const actualizacionCompleta = aplicarTasas(data);
+        const datosAnteriores = cache?.data || null;
+        const actualizacionCompleta = aplicarTasas(data, datosAnteriores);
 
         if (!actualizacionCompleta) {
           throw new Error("Actualizacion parcial. Falta BCV o Binance/P2P.");
         }
 
-        guardarTasas(data);
+        guardarTasas(data, datosAnteriores);
 
         const fecha = new Date();
         const hora = fecha.toLocaleTimeString("es-VE", {
@@ -815,6 +849,47 @@
       }
 
       calcularTodo();
+    }
+
+    function porcentajeCambio(actual, anterior) {
+      if (!actual || !anterior || actual <= 0 || anterior <= 0) return null;
+
+      return ((actual - anterior) / anterior) * 100;
+    }
+
+    function pintarTendencia(id, actual, anterior) {
+      const el = document.getElementById(id);
+      if (!el) return;
+
+      const cambio = porcentajeCambio(actual, anterior);
+
+      if (cambio === null || Math.abs(cambio) < 0.005) {
+        el.textContent = "=";
+        el.className = "trend flat";
+        return;
+      }
+
+      if (cambio > 0) {
+        el.textContent = "\u2191 " + formatoNumero(cambio, 2) + "%";
+        el.className = "trend up";
+        return;
+      }
+
+      el.textContent = "\u2193 " + formatoNumero(Math.abs(cambio), 2) + "%";
+      el.className = "trend down";
+    }
+
+    function obtenerTasaAnteriorPorTipo(tipo) {
+      if (!tasasP2PAnteriores) return null;
+
+      const ventaAnterior = tasasP2PAnteriores.venta;
+
+      if (tipo === "compra") return tasasP2PAnteriores.compra;
+      if (tipo === "venta") return ventaAnterior;
+      if (tipo === "promedio") return tasasP2PAnteriores.promedio;
+      if (tipo === "jgomez") return ventaAnterior ? ventaAnterior * 0.98 : null;
+
+      return null;
     }
 
     function cambiarTasaCambio(tasa) {
@@ -867,6 +942,11 @@
       document.getElementById("tabRateCompra").textContent = compra ? formatoBs(compra) : "-";
       document.getElementById("tabRateVenta").textContent = venta ? formatoBs(venta) : "-";
       document.getElementById("tabRateJGomez").textContent = jgomez ? formatoBs(jgomez) : "-";
+
+      pintarTendencia("tabTrendCompra", compra, obtenerTasaAnteriorPorTipo("compra"));
+      pintarTendencia("tabTrendVenta", venta, obtenerTasaAnteriorPorTipo("venta"));
+      pintarTendencia("tabTrendJGomez", jgomez, obtenerTasaAnteriorPorTipo("jgomez"));
+      pintarTendencia("trendPromedio", tasasP2P.promedio, obtenerTasaAnteriorPorTipo("promedio"));
     }
 
     function calcularDescuento() {
