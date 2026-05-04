@@ -436,6 +436,13 @@
       text-align: center;
     }
 
+    .visit-counter {
+      color: #666;
+      font-size: 11px;
+      font-weight: 800;
+      margin-bottom: 6px;
+    }
+
     .note {
       font-size: 12px;
       color: #666;
@@ -657,12 +664,16 @@
       </section>
 
       <div class="footer">
+        <div id="visitCounter" class="visit-counter">T: - | D: -</div>
         &copy; JGomez
       </div>
     </div>
   </div>
 
   <script>
+    const SUPABASE_URL = "https://eayaqiqgplvwrxcvxrkn.supabase.co";
+    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVheWFxaXFncGx2d3J4Y3Z4cmtuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc5MTY5NTcsImV4cCI6MjA5MzQ5Mjk1N30.oi-Zeg8s2B6Or-GohZD4FadFvGnqRESpbXVKnStf8j4";
+    const VISIT_SESSION_KEY = "tasa-flc-visit-counted";
     const TASAS_CACHE_KEY = "tasa-flc-rates-cache-v1";
     const TASAS_CACHE_MINUTOS = 30;
     let modoActivo = "descuento";
@@ -699,6 +710,50 @@
       const status = document.getElementById("status");
       status.textContent = texto;
       status.className = "status " + tipo;
+    }
+
+    function mostrarVisitas(data) {
+      const counter = document.getElementById("visitCounter");
+      const total = data?.total_visits ?? "-";
+      const dia = data?.today_visits ?? "-";
+
+      counter.textContent = `T: ${total} | D: ${dia}`;
+    }
+
+    async function llamarContadorVisitas(funcion) {
+      const res = await fetch(`${SUPABASE_URL}/rest/v1/rpc/${funcion}`, {
+        method: "POST",
+        headers: {
+          "apikey": SUPABASE_ANON_KEY,
+          "Authorization": `Bearer ${SUPABASE_ANON_KEY}`,
+          "Content-Type": "application/json"
+        },
+        body: "{}"
+      });
+
+      if (!res.ok) {
+        throw new Error("Error consultando contador: " + await res.text());
+      }
+
+      const data = await res.json();
+      return Array.isArray(data) ? data[0] : data;
+    }
+
+    async function actualizarVisitas() {
+      try {
+        const yaContado = sessionStorage.getItem(VISIT_SESSION_KEY) === "1";
+        const funcion = yaContado ? "get_visit_counts" : "record_visit";
+        const data = await llamarContadorVisitas(funcion);
+
+        if (!yaContado) {
+          sessionStorage.setItem(VISIT_SESSION_KEY, "1");
+        }
+
+        mostrarVisitas(data);
+      } catch (error) {
+        console.log("Contador de visitas no disponible:", error);
+        mostrarVisitas(null);
+      }
     }
 
     function aplicarTasas(data, datosAnteriores = null) {
@@ -1144,6 +1199,7 @@
       calcularTodo();
       cargarTasasGuardadas();
       actualizarTasas(false);
+      actualizarVisitas();
     });
   </script>
 </body>
