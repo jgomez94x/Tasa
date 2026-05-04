@@ -51,11 +51,11 @@ const adminPanelInject = String.raw`
   }
 
   async function llamarSupabaseFuncionAdmin(funcion, body = {}) {
-    const res = await fetch(`${SUPABASE_URL_ADMIN}/rest/v1/rpc/${funcion}`, {
+    const res = await fetch(SUPABASE_URL_ADMIN + "/rest/v1/rpc/" + funcion, {
       method: "POST",
       headers: {
         "apikey": SUPABASE_ANON_KEY_ADMIN,
-        "Authorization": `Bearer ${SUPABASE_ANON_KEY_ADMIN}`,
+        "Authorization": "Bearer " + SUPABASE_ANON_KEY_ADMIN,
         "Content-Type": "application/json"
       },
       body: JSON.stringify(body)
@@ -68,7 +68,7 @@ const adminPanelInject = String.raw`
   function mostrarVisitasAdmin(data) {
     const counter = document.getElementById("visitCounter");
     if (!counter) return;
-    counter.textContent = `T: ${data?.total_visits ?? "-"} | D: ${data?.today_visits ?? "-"}`;
+    counter.textContent = "T: " + (data?.total_visits ?? "-") + " | D: " + (data?.today_visits ?? "-");
   }
 
   async function registrarUsoModoAdmin(modo) {
@@ -121,7 +121,7 @@ const adminPanelInject = String.raw`
       document.getElementById("adminDescuento").textContent = data?.descuento_today ?? "-";
       document.getElementById("adminCambio").textContent = data?.cambio_today ?? "-";
       document.getElementById("adminPagar").textContent = data?.pagar_today ?? "-";
-      detalle.textContent = `Hoy por pestana. Totales: Descuento ${data?.descuento_total ?? 0}, Cambio ${data?.cambio_total ?? 0}, Pagar ${data?.pagar_total ?? 0}. Ultima visita: ${formatoFechaAdmin(data?.last_visit_at)}.`;
+      detalle.textContent = "Hoy por pestana. Totales: Descuento " + (data?.descuento_total ?? 0) + ", Cambio " + (data?.cambio_total ?? 0) + ", Pagar " + (data?.pagar_total ?? 0) + ". Ultima visita: " + formatoFechaAdmin(data?.last_visit_at) + ".";
     } catch (error) {
       console.log("No se pudo cargar panel:", error);
       detalle.textContent = "No se pudo cargar el panel.";
@@ -132,24 +132,24 @@ const adminPanelInject = String.raw`
     if (document.getElementById("adminPanel")) return;
     const footer = document.querySelector(".footer");
     if (!footer) return;
-    footer.insertAdjacentHTML("afterend", `
-      <div id="adminPanel" class="admin-panel">
-        <div class="admin-head">
-          <strong>Panel privado</strong>
-          <button class="admin-close" type="button" id="adminClose" aria-label="Cerrar panel">&times;</button>
-        </div>
-        <div class="admin-grid">
-          <div class="admin-item"><span>Visitas</span><strong id="adminTotal">-</strong></div>
-          <div class="admin-item"><span>Hoy</span><strong id="adminHoy">-</strong></div>
-          <div class="admin-item"><span>Equipos</span><strong id="adminEquipos">-</strong></div>
-        </div>
-        <div class="admin-grid">
-          <div class="admin-item"><span>Descuento</span><strong id="adminDescuento">-</strong></div>
-          <div class="admin-item"><span>Cambio</span><strong id="adminCambio">-</strong></div>
-          <div class="admin-item"><span>Pagar</span><strong id="adminPagar">-</strong></div>
-        </div>
-        <div id="adminDetalle" class="admin-line">Toca actualizar dentro de un momento.</div>
-      </div>`);
+    footer.insertAdjacentHTML("afterend",
+      '<div id="adminPanel" class="admin-panel">' +
+      '<div class="admin-head">' +
+      '<strong>Panel privado</strong>' +
+      '<button class="admin-close" type="button" id="adminClose" aria-label="Cerrar panel">&times;</button>' +
+      '</div>' +
+      '<div class="admin-grid">' +
+      '<div class="admin-item"><span>Visitas</span><strong id="adminTotal">-</strong></div>' +
+      '<div class="admin-item"><span>Hoy</span><strong id="adminHoy">-</strong></div>' +
+      '<div class="admin-item"><span>Equipos</span><strong id="adminEquipos">-</strong></div>' +
+      '</div>' +
+      '<div class="admin-grid">' +
+      '<div class="admin-item"><span>Descuento</span><strong id="adminDescuento">-</strong></div>' +
+      '<div class="admin-item"><span>Cambio</span><strong id="adminCambio">-</strong></div>' +
+      '<div class="admin-item"><span>Pagar</span><strong id="adminPagar">-</strong></div>' +
+      '</div>' +
+      '<div id="adminDetalle" class="admin-line">Toca actualizar dentro de un momento.</div>' +
+      '</div>');
     document.getElementById("adminClose").addEventListener("click", () => {
       document.getElementById("adminPanel").classList.remove("active");
     });
@@ -210,11 +210,16 @@ function shouldInjectAdminPanel(request, response) {
 async function injectAdminPanel(response) {
   let html = await response.text();
   if (html.includes("adminPanelScript")) return new Response(html, response);
-  html = html.replace("</body>", `${adminPanelInject}</body>`);
+  html = html.replace("</body>", adminPanelInject + "</body>");
+  const headers = new Headers(response.headers);
+  headers.delete("content-encoding");
+  headers.delete("content-length");
+  headers.set("content-type", "text/html; charset=utf-8");
+
   return new Response(html, {
     status: response.status,
     statusText: response.statusText,
-    headers: response.headers
+    headers
   });
 }
 
