@@ -1,13 +1,13 @@
 {
-  "bcv": 487.12,
+  "bcv": 489.55,
   "binance": {
-    "compra": 631.2,
-    "venta": 631.94,
-    "promedio": 631.57
+    "compra": 632.86,
+    "venta": 630,
+    "promedio": 631.43
   },
   "warnings": {
     "bcv": null,
     "binance": null
   },
-  "updatedAt": "2026-05-03T22:26:10.380Z"
+  "updatedAt": "2026-05-04T08:07:53.897Z"
 }
