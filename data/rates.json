@@ -1,9 +1,9 @@
 {
   "bcv": 489.55,
   "binance": {
-    "compra": 648.29,
-    "venta": 646.08,
-    "promedio": 647.18
+    "compra": 646.54,
+    "venta": 647.93,
+    "promedio": 647.23
   },
   "warnings": {
     "bcv": null,
@@ -12,52 +12,8 @@
   "diagnostics": {
     "binance": {
       "compra": {
-        "tradeType": "BUY",
-        "selectedBank": "Provincial",
-        "selectedPayTypes": [
-          "Provincial"
-        ],
-        "selectedMethod": "avg-lowest-5-filtered",
-        "selectedSource": "binance-p2p-BUY",
-        "sourceRates": [
-          {
-            "source": "binance-p2p-BUY",
-            "bankLabel": "BBVA",
-            "payTypes": [
-              "BBVA"
-            ],
-            "method": "no-valid-prices",
-            "rate": null,
-            "sampleSize": 0,
-            "rawSampleSize": 0,
-            "samplePrices": [],
-            "ignoredOutliers": []
-          },
-          {
-            "source": "binance-p2p-BUY",
-            "bankLabel": "Provincial",
-            "payTypes": [
-              "Provincial"
-            ],
-            "method": "avg-lowest-5-filtered",
-            "rate": 648.29,
-            "sampleSize": 19,
-            "rawSampleSize": 20,
-            "samplePrices": [
-              647.98,
-              648,
-              648,
-              648.45,
-              649
-            ],
-            "ignoredOutliers": [
-              631.58
-            ]
-          }
-        ],
-        "errors": []
-      },
-      "venta": {
+        "label": "Compra app",
+        "binanceTradeType": "SELL",
         "tradeType": "SELL",
         "selectedBank": "Provincial",
         "selectedPayTypes": [
@@ -68,40 +24,62 @@
         "sourceRates": [
           {
             "source": "binance-p2p-SELL",
-            "bankLabel": "BBVA",
-            "payTypes": [
-              "BBVA"
-            ],
-            "method": "no-valid-prices",
-            "rate": null,
-            "sampleSize": 0,
-            "rawSampleSize": 0,
-            "samplePrices": [],
-            "ignoredOutliers": []
-          },
-          {
-            "source": "binance-p2p-SELL",
             "bankLabel": "Provincial",
             "payTypes": [
               "Provincial"
             ],
             "method": "avg-highest-5-filtered",
-            "rate": 646.08,
+            "rate": 646.54,
             "sampleSize": 20,
             "rawSampleSize": 20,
             "samplePrices": [
               647,
-              646.3,
-              646,
-              646,
-              645.09
+              646.7,
+              646.51,
+              646.5,
+              646
             ],
             "ignoredOutliers": []
+          }
+        ],
+        "errors": []
+      },
+      "venta": {
+        "label": "Venta app",
+        "binanceTradeType": "BUY",
+        "tradeType": "BUY",
+        "selectedBank": "Provincial",
+        "selectedPayTypes": [
+          "Provincial"
+        ],
+        "selectedMethod": "avg-lowest-5-filtered",
+        "selectedSource": "binance-p2p-BUY",
+        "sourceRates": [
+          {
+            "source": "binance-p2p-BUY",
+            "bankLabel": "Provincial",
+            "payTypes": [
+              "Provincial"
+            ],
+            "method": "avg-lowest-5-filtered",
+            "rate": 647.93,
+            "sampleSize": 19,
+            "rawSampleSize": 20,
+            "samplePrices": [
+              647.7,
+              647.95,
+              648,
+              648,
+              648
+            ],
+            "ignoredOutliers": [
+              631.58
+            ]
           }
         ],
         "errors": []
       }
     }
   },
-  "updatedAt": "2026-05-04T15:36:43.268Z"
+  "updatedAt": "2026-05-04T15:46:46.179Z"
 }
