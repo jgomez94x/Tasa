@@ -1,9 +1,9 @@
 {
   "bcv": 489.55,
   "binance": {
-    "compra": 641.56,
-    "venta": 663.96,
-    "promedio": 652.76
+    "compra": 641.16,
+    "venta": 654.44,
+    "promedio": 647.8
   },
   "warnings": {
     "bcv": null,
@@ -13,20 +13,20 @@
     "binance": {
       "compra": {
         "tradeType": "BUY",
-        "selectedSource": "binance-ads-BUY-price_asc",
+        "selectedSource": "binance-old-BUY",
         "selectedMethod": "average-lowest-5-consensus-median-BUY",
         "sourceRates": [
           {
             "source": "binance-old-BUY",
             "method": "average-lowest-5",
-            "rate": 641.74,
+            "rate": 641.16,
             "sampleSize": 20,
             "samplePrices": [
               631.58,
               638,
+              644,
               646,
-              646.2,
-              646.9
+              646.2
             ]
           },
           {
@@ -41,12 +41,12 @@
           {
             "source": "binance-ads-BUY-price_asc",
             "method": "average-lowest-5",
-            "rate": 641.56,
+            "rate": 641.16,
             "sampleSize": 20,
             "samplePrices": [
               631.58,
               638,
-              646,
+              644,
               646,
               646.2
             ]
@@ -54,12 +54,12 @@
           {
             "source": "binance-ads-BUY-price_desc",
             "method": "average-lowest-5",
-            "rate": 641.56,
+            "rate": 641.16,
             "sampleSize": 20,
             "samplePrices": [
               631.58,
               638,
-              646,
+              644,
               646,
               646.2
             ]
@@ -75,49 +75,49 @@
           {
             "source": "binance-old-SELL",
             "method": "average-highest-5",
-            "rate": 663.96,
+            "rate": 654.44,
             "sampleSize": 20,
             "samplePrices": [
-              690,
               680.8,
-              650,
-              649.99,
-              649
+              649,
+              648,
+              647.2,
+              647.2
             ]
           },
           {
             "source": "binance-quote-SELL",
             "method": "average-highest-5",
-            "rate": 690,
+            "rate": 680.8,
             "sampleSize": 1,
             "samplePrices": [
-              690
+              680.8
             ]
           },
           {
             "source": "binance-ads-SELL-price_asc",
             "method": "average-highest-5",
-            "rate": 663.96,
+            "rate": 654.44,
             "sampleSize": 20,
             "samplePrices": [
-              690,
               680.8,
-              650,
-              649.99,
-              649
+              649,
+              648,
+              647.2,
+              647.2
             ]
           },
           {
             "source": "binance-ads-SELL-price_desc",
             "method": "average-highest-5",
-            "rate": 663.96,
+            "rate": 654.44,
             "sampleSize": 20,
             "samplePrices": [
-              690,
               680.8,
-              650,
-              649.99,
-              649
+              649,
+              648,
+              647.2,
+              647.2
             ]
           }
         ],
@@ -125,5 +125,5 @@
       }
     }
   },
-  "updatedAt": "2026-05-04T15:19:46.400Z"
+  "updatedAt": "2026-05-04T15:33:15.109Z"
 }
