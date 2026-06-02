@@ -24,7 +24,7 @@ async function main() {
   const bcvDiagnostics = bcvResult.status === "fulfilled" ? bcvResult.value.diagnostics : null;
   const binanceDiagnostics = binanceResult.status === "fulfilled" ? binanceResult.value.diagnostics : null;
 
-  if (!bcv?.rate || !hasAnyBinanceRate(binance)) {
+  if (!bcv?.rate || !hasCompleteBinanceRates(binance)) {
     throw new Error(JSON.stringify({
       bcv: bcvResult.reason?.message || "Sin respuesta BCV",
       binance: binanceResult.reason?.message || "Sin respuesta Binance"
@@ -48,8 +48,8 @@ async function main() {
   console.log(JSON.stringify(rates, null, 2));
 }
 
-function hasAnyBinanceRate(rates) {
-  return Boolean(rates?.compra || rates?.venta || rates?.promedio);
+function hasCompleteBinanceRates(rates) {
+  return Boolean(rates?.compra && rates?.venta && rates?.promedio);
 }
 
 async function getBCVRate() {
@@ -195,16 +195,15 @@ async function getBinanceRates() {
   const ventaData = ventaResult.status === "fulfilled" ? ventaResult.value : null;
   const compra = compraData?.rate || null;
   const venta = ventaData?.rate || null;
-  const valores = [compra, venta].filter(Boolean);
 
-  if (!valores.length) {
+  if (!compra || !venta) {
     throw new Error([
-      compraResult.reason?.message || "Compra P2P sin respuesta",
-      ventaResult.reason?.message || "Venta P2P sin respuesta"
-    ].join(" | "));
+      compra ? null : (compraResult.reason?.message || "Compra P2P sin respuesta"),
+      venta ? null : (ventaResult.reason?.message || "Venta P2P sin respuesta")
+    ].filter(Boolean).join(" | "));
   }
 
-  const promedio = valores.reduce((a, b) => a + b, 0) / valores.length;
+  const promedio = (compra + venta) / 2;
 
   return {
     rates: { compra, venta, promedio: Number(promedio.toFixed(2)) },
