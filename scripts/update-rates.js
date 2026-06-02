@@ -21,9 +21,10 @@ async function main() {
 
   const bcv = bcvResult.status === "fulfilled" ? bcvResult.value : null;
   const binance = binanceResult.status === "fulfilled" ? binanceResult.value.rates : null;
+  const bcvDiagnostics = bcvResult.status === "fulfilled" ? bcvResult.value.diagnostics : null;
   const binanceDiagnostics = binanceResult.status === "fulfilled" ? binanceResult.value.diagnostics : null;
 
-  if (!bcv && !hasAnyBinanceRate(binance)) {
+  if (!bcv?.rate || !hasAnyBinanceRate(binance)) {
     throw new Error(JSON.stringify({
       bcv: bcvResult.reason?.message || "Sin respuesta BCV",
       binance: binanceResult.reason?.message || "Sin respuesta Binance"
@@ -31,13 +32,13 @@ async function main() {
   }
 
   const rates = {
-    bcv,
+    bcv: bcv.rate,
     binance,
     warnings: {
       bcv: bcvResult.status === "rejected" ? bcvResult.reason?.message : null,
       binance: binanceResult.status === "rejected" ? binanceResult.reason?.message : null
     },
-    diagnostics: { binance: binanceDiagnostics },
+    diagnostics: { bcv: bcvDiagnostics, binance: binanceDiagnostics },
     updatedAt: new Date().toISOString()
   };
 
@@ -53,9 +54,27 @@ function hasAnyBinanceRate(rates) {
 
 async function getBCVRate() {
   const sources = [
-    { name: "bcv-api", url: "https://bcv-api.rafnixg.dev/rates/", parse: extractBCVNumber },
-    { name: "dolarapi", url: "https://ve.dolarapi.com/v1/dolares/oficial", parse: data => data?.promedio || data?.venta || data?.compra },
-    { name: "dolarflow", url: "https://dolarflow.com/api/oficial", parse: data => data?.precio }
+    {
+      name: "bcv-api",
+      url: "https://bcv-api.rafnixg.dev/rates/",
+      parse: data => ({ rate: extractBCVNumber(data), date: data?.date })
+    },
+    {
+      name: "dolarapi",
+      url: "https://ve.dolarapi.com/v1/dolares/oficial",
+      parse: data => ({
+        rate: data?.promedio || data?.venta || data?.compra,
+        date: data?.fechaActualizacion || data?.fecha
+      })
+    },
+    {
+      name: "dolarflow",
+      url: "https://dolarflow.com/api/oficial",
+      parse: data => ({
+        rate: data?.precio || data?.promedio || data?.venta || data?.rate,
+        date: data?.fechaActualizacion || data?.fecha || data?.date || data?.updatedAt
+      })
+    }
   ];
 
   const errors = [];
@@ -63,15 +82,71 @@ async function getBCVRate() {
   for (const source of sources) {
     try {
       const data = await fetchJson(source.url, undefined, source.name);
-      const rate = source.parse(data);
-      if (isValidRate(rate)) return Number(Number(rate).toFixed(2));
-      errors.push(`${source.name}: respuesta sin tasa BCV`);
+      const parsed = normalizeBCVSourceResult(source.parse(data));
+      if (isValidRate(parsed.rate) && isFreshBCVDate(parsed.date)) {
+        return {
+          rate: Number(Number(parsed.rate).toFixed(2)),
+          diagnostics: {
+            selectedSource: source.name,
+            sourceDate: parsed.date || null
+          }
+        };
+      }
+      if (isValidRate(parsed.rate) && parsed.date) {
+        errors.push(`${source.name}: tasa BCV vieja (${parsed.date})`);
+      } else {
+        errors.push(`${source.name}: respuesta sin tasa BCV`);
+      }
     } catch (error) {
       errors.push(`${source.name}: ${error.message}`);
     }
   }
 
   throw new Error(errors.join(" | "));
+}
+
+function normalizeBCVSourceResult(result) {
+  if (result && typeof result === "object" && !Array.isArray(result)) {
+    return {
+      rate: result.rate ?? result.value ?? result.precio ?? result.promedio,
+      date: result.date || result.fecha || result.fechaActualizacion || result.updatedAt || null
+    };
+  }
+
+  return { rate: result, date: null };
+}
+
+function isFreshBCVDate(dateValue) {
+  if (!dateValue) return true;
+
+  const date = parseSourceDate(dateValue);
+  if (!date) return false;
+
+  const now = new Date();
+  const maxFutureMs = 36 * 60 * 60 * 1000;
+  const maxAgeMs = 7 * 24 * 60 * 60 * 1000;
+  const ageMs = now.getTime() - date.getTime();
+
+  return ageMs <= maxAgeMs && ageMs >= -maxFutureMs;
+}
+
+function parseSourceDate(dateValue) {
+  if (dateValue instanceof Date && !Number.isNaN(dateValue.getTime())) return dateValue;
+  if (typeof dateValue !== "string" && typeof dateValue !== "number") return null;
+
+  const parsed = new Date(dateValue);
+  if (!Number.isNaN(parsed.getTime())) return parsed;
+
+  if (typeof dateValue === "string") {
+    const match = dateValue.match(/^(\d{2})[/-](\d{2})[/-](\d{4})$/);
+    if (match) {
+      const [, day, month, year] = match;
+      const localDate = new Date(Number(year), Number(month) - 1, Number(day));
+      if (!Number.isNaN(localDate.getTime())) return localDate;
+    }
+  }
+
+  return null;
 }
 
 function extractBCVNumber(data) {
