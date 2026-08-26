@@ -1,9 +1,9 @@
 {
   "bcv": 787.52,
   "binance": {
-    "compra": 947.97,
-    "venta": 949.11,
-    "promedio": 948.54
+    "compra": 948.88,
+    "venta": 952.89,
+    "promedio": 950.88
   },
   "warnings": {
     "bcv": null,
@@ -33,15 +33,15 @@
               "Provincial"
             ],
             "method": "avg-highest-5-filtered",
-            "rate": 947.97,
+            "rate": 948.88,
             "sampleSize": 20,
             "rawSampleSize": 20,
             "samplePrices": [
-              948.12,
-              948,
-              948,
-              948,
-              947.7
+              949,
+              948.9,
+              948.85,
+              948.85,
+              948.81
             ],
             "ignoredOutliers": []
           }
@@ -66,15 +66,15 @@
               "Provincial"
             ],
             "method": "avg-lowest-5-filtered",
-            "rate": 949.11,
+            "rate": 952.89,
             "sampleSize": 20,
             "rawSampleSize": 20,
             "samplePrices": [
-              947,
-              949,
-              949.57,
-              950,
-              950
+              952,
+              952.95,
+              953,
+              953,
+              953.49
             ],
             "ignoredOutliers": []
           }
@@ -83,5 +83,5 @@
       }
     }
   },
-  "updatedAt": "2026-08-26T13:57:17.667Z"
+  "updatedAt": "2026-08-26T14:48:53.489Z"
 }
