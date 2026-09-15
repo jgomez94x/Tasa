@@ -1,9 +1,9 @@
 {
   "bcv": 842.21,
   "binance": {
-    "compra": 953.59,
-    "venta": 951.53,
-    "promedio": 952.56
+    "compra": 956.05,
+    "venta": 960.16,
+    "promedio": 958.11
   },
   "warnings": {
     "bcv": null,
@@ -19,58 +19,34 @@
         "label": "Compra app",
         "binanceTradeType": "SELL",
         "tradeType": "SELL",
-        "selectedBank": "Todos los bancos",
-        "selectedPayTypes": [],
+        "selectedBank": "Provincial",
+        "selectedPayTypes": [
+          "Provincial"
+        ],
         "selectedMethod": "avg-highest-5-filtered",
         "selectedSource": "binance-p2p-SELL",
         "sourceRates": [
           {
             "source": "binance-p2p-SELL",
-            "bankLabel": "Banco Provincial",
+            "bankLabel": "Provincial",
             "payTypes": [
-              "Banco Provincial"
+              "Provincial"
             ],
-            "method": "no-valid-prices",
-            "rate": null,
-            "sampleSize": 0,
-            "rawSampleSize": 0,
-            "samplePrices": [],
-            "ignoredOutliers": []
-          },
-          {
-            "source": "binance-p2p-SELL",
-            "bankLabel": "BBVA",
-            "payTypes": [
-              "BBVA"
-            ],
-            "method": "no-valid-prices",
-            "rate": null,
-            "sampleSize": 0,
-            "rawSampleSize": 0,
-            "samplePrices": [],
-            "ignoredOutliers": []
-          },
-          {
-            "source": "binance-p2p-SELL",
-            "bankLabel": "Todos los bancos",
-            "payTypes": [],
             "method": "avg-highest-5-filtered",
-            "rate": 953.59,
+            "rate": 956.05,
             "sampleSize": 20,
             "rawSampleSize": 20,
             "samplePrices": [
-              959.15,
-              954,
-              952,
-              951.5,
-              951.3
+              958,
+              955.8,
+              955.65,
+              955.5,
+              955.31
             ],
             "ignoredOutliers": []
           }
         ],
-        "errors": [
-          "Provincial: fetch failed"
-        ]
+        "errors": []
       },
       "venta": {
         "label": "Venta app",
@@ -90,15 +66,15 @@
               "Provincial"
             ],
             "method": "avg-lowest-5-filtered",
-            "rate": 951.53,
+            "rate": 960.16,
             "sampleSize": 20,
             "rawSampleSize": 20,
             "samplePrices": [
-              951,
-              951,
-              951.7,
-              951.97,
-              952
+              959.5,
+              960,
+              960,
+              960.5,
+              960.8
             ],
             "ignoredOutliers": []
           }
@@ -107,5 +83,5 @@
       }
     }
   },
-  "updatedAt": "2026-09-15T16:49:40.836Z"
+  "updatedAt": "2026-09-15T20:00:01.437Z"
 }
